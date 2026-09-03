@@ -1,6 +1,7 @@
 const path = require("path");
 const express = require("express");
 const { computeFortune } = require("./fortune");
+const { listCities } = require("./cityLongitude");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -13,10 +14,13 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.get("/api/cities", (req, res) => {
+  res.json({ cities: listCities() });
+});
+
 app.post("/api/fortune", (req, res) => {
-  const { name, birthDate } = req.body || {};
   try {
-    const result = computeFortune(name, birthDate);
+    const result = computeFortune(req.body || {});
     res.json(result);
   } catch (err) {
     const status = err.status || 400;

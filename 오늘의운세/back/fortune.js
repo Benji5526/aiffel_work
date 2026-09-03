@@ -1,5 +1,7 @@
 // 별자리 / 12지신 계산 + 오늘의 운세 생성 로직
 
+const { computeSaju } = require("./saju");
+
 const WESTERN_ZODIAC = [
   { sign: "염소자리", en: "Capricorn", symbol: "♑", from: [12, 22], to: [1, 19] },
   { sign: "물병자리", en: "Aquarius", symbol: "♒", from: [1, 20], to: [2, 18] },
@@ -14,21 +16,6 @@ const WESTERN_ZODIAC = [
   { sign: "전갈자리", en: "Scorpio", symbol: "♏", from: [10, 24], to: [11, 22] },
   { sign: "궁수자리", en: "Sagittarius", symbol: "♐", from: [11, 23], to: [12, 21] },
 ];
-
-const CHINESE_ZODIAC = [
-  { animal: "쥐띠", en: "Rat", symbol: "🐭" },
-  { animal: "소띠", en: "Ox", symbol: "🐮" },
-  { animal: "호랑이띠", en: "Tiger", symbol: "🐯" },
-  { animal: "토끼띠", en: "Rabbit", symbol: "🐰" },
-  { animal: "용띠", en: "Dragon", symbol: "🐲" },
-  { animal: "뱀띠", en: "Snake", symbol: "🐍" },
-  { animal: "말띠", en: "Horse", symbol: "🐴" },
-  { animal: "양띠", en: "Goat", symbol: "🐑" },
-  { animal: "원숭이띠", en: "Monkey", symbol: "🐵" },
-  { animal: "닭띠", en: "Rooster", symbol: "🐔" },
-  { animal: "개띠", en: "Dog", symbol: "🐶" },
-  { animal: "돼지띠", en: "Pig", symbol: "🐷" },
-]; // index 0 = 2020년(쥐띠) 기준 (양력 연도 기준 단순화 계산, 음력 설 미반영)
 
 const FORTUNE_TEMPLATES = {
   overall: [
@@ -113,11 +100,6 @@ function getWesternZodiac(month, day) {
   throw new Error("올바르지 않은 날짜입니다.");
 }
 
-function getChineseZodiac(year) {
-  const idx = (((year - 2020) % 12) + 12) % 12;
-  return CHINESE_ZODIAC[idx];
-}
-
 function parseBirthDate(birthDateStr) {
   // 기대 형식: YYYY-MM-DD
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec((birthDateStr || "").trim());
@@ -136,6 +118,16 @@ function parseBirthDate(birthDateStr) {
   return { year, month, day };
 }
 
+function parseBirthTime(birthTimeStr) {
+  // 기대 형식: HH:mm (24시간제)
+  const match = /^(\d{2}):(\d{2})$/.exec((birthTimeStr || "").trim());
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return { hour, minute };
+}
+
 function todayKST() {
   // KST(UTC+9) 기준 오늘 날짜 문자열(YYYY-MM-DD)
   const now = new Date();
@@ -143,13 +135,32 @@ function todayKST() {
   return kst.toISOString().slice(0, 10);
 }
 
-function computeFortune(name, birthDateStr) {
+function computeFortune(input) {
+  const {
+    name,
+    birthDate: birthDateStr,
+    calendarType = "solar",
+    isLeapMonth = false,
+    gender = null,
+    birthTime: birthTimeStr = null,
+    timeUnknown = false,
+    city = null,
+  } = input;
+
   const trimmedName = (name || "").trim();
   if (!trimmedName) {
     throw Object.assign(new Error("이름을 입력해주세요."), { status: 400 });
   }
   if (trimmedName.length > 20) {
     throw Object.assign(new Error("이름은 20자 이하로 입력해주세요."), { status: 400 });
+  }
+
+  if (calendarType !== "solar" && calendarType !== "lunar") {
+    throw Object.assign(new Error("달력 유형은 solar 또는 lunar여야 합니다."), { status: 400 });
+  }
+
+  if (gender !== null && gender !== "female" && gender !== "male") {
+    throw Object.assign(new Error("성별은 female 또는 male이어야 합니다."), { status: 400 });
   }
 
   const parsed = parseBirthDate(birthDateStr);
@@ -160,13 +171,31 @@ function computeFortune(name, birthDateStr) {
     );
   }
 
-  const { year, month, day } = parsed;
-  const western = getWesternZodiac(month, day);
-  const chinese = getChineseZodiac(year);
+  let time = null;
+  if (!timeUnknown && birthTimeStr) {
+    time = parseBirthTime(birthTimeStr);
+    if (!time) {
+      throw Object.assign(new Error("태어난 시간 형식이 올바르지 않습니다. (HH:mm)"), { status: 400 });
+    }
+  }
+
+  const saju = computeSaju({
+    year: parsed.year,
+    month: parsed.month,
+    day: parsed.day,
+    calendarType,
+    isLeapMonth: calendarType === "lunar" ? !!isLeapMonth : false,
+    hour: time ? time.hour : null,
+    minute: time ? time.minute : null,
+    city,
+  });
+
+  const [solarYear, solarMonth, solarDay] = saju.solarDate.split("-").map(Number);
+  const western = getWesternZodiac(solarMonth, solarDay);
   const date = todayKST();
 
-  // 이름 + 생년월일 + 오늘 날짜로 시드를 만들어 "하루 동안은 같은 결과"가 나오도록 함
-  const seed = hashString(`${trimmedName}|${birthDateStr}|${date}`);
+  // 이름 + 확정된 양력 생년월일 + 오늘 날짜로 시드를 만들어 "하루 동안은 같은 결과"가 나오도록 함
+  const seed = hashString(`${trimmedName}|${saju.solarDate}|${date}`);
   const rng = mulberry32(seed);
 
   const fortune = {
@@ -181,7 +210,10 @@ function computeFortune(name, birthDateStr) {
 
   return {
     name: trimmedName,
+    gender,
     birthDate: birthDateStr,
+    calendarType,
+    isLeapMonth: calendarType === "lunar" ? !!isLeapMonth : false,
     date,
     westernZodiac: {
       sign: western.sign,
@@ -189,12 +221,12 @@ function computeFortune(name, birthDateStr) {
       symbol: western.symbol,
     },
     chineseZodiac: {
-      animal: chinese.animal,
-      animalEn: chinese.en,
-      symbol: chinese.symbol,
+      animal: saju.zodiacAnimal,
+      symbol: saju.zodiacAnimalSymbol,
     },
+    saju,
     fortune,
   };
 }
 
-module.exports = { computeFortune, getWesternZodiac, getChineseZodiac };
+module.exports = { computeFortune, getWesternZodiac };

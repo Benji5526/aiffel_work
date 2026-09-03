@@ -159,6 +159,82 @@ button#submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
   font-weight: 600;
 }
 
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+
+.field-calendar {
+  flex: 0 0 100px;
+}
+
+.field-row .field:last-child {
+  flex: 1;
+}
+
+.field-optional {
+  font-weight: 400;
+  color: var(--text-dim);
+  font-size: 0.74rem;
+}
+
+select#calendarType {
+  background: #fbfaf6;
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  padding: 13px 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+select#calendarType:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--card-border);
+  background: #fbfaf6;
+  color: var(--text-dim);
+  font-weight: 700;
+  font-size: 0.92rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.toggle-btn.is-active {
+  border-color: var(--text);
+  background: var(--text);
+  color: #fff;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: -6px;
+}
+
+.checkbox-row input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-dark);
+}
+
 .result-wrap {
   display: flex;
   flex-direction: column;
@@ -233,6 +309,186 @@ button#submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
   font-size: 0.95rem;
   font-weight: 800;
   margin: 0 0 16px;
+}
+
+.section-subtitle {
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin: 20px 0 12px;
+  color: var(--text-dim);
+}
+
+.saju-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.saju-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.saju-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saju-col > span {
+  flex: 1;
+  text-align: center;
+}
+
+.saju-col > span:first-child,
+.saju-row-label {
+  flex: 0 0 40px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.saju-head span {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.saju-cell {
+  font-weight: 800;
+  font-size: 1.1rem;
+  background: var(--pill-bg);
+  border-radius: 10px;
+  padding: 10px 0;
+}
+
+.saju-cell[data-element="목"] { background: #e8f5e9; color: #2e7d32; }
+.saju-cell[data-element="화"] { background: #ffebee; color: #c62828; }
+.saju-cell[data-element="토"] { background: #f5ead9; color: #8d5a24; }
+.saju-cell[data-element="금"] { background: #fdf2d0; color: #a3790c; }
+.saju-cell[data-element="수"] { background: #e3ecfa; color: #1e4d99; }
+
+.saju-daymaster {
+  border: 2px solid var(--accent-dark);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.saju-shishen-row {
+  margin-top: 4px;
+}
+
+.saju-shishen {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding: 4px 0;
+}
+
+.tengod-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.donut {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: conic-gradient(var(--pill-bg) 0 100%);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.donut::after {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  background: var(--card-bg);
+}
+
+.tengod-legend {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tengod-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.tengod-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tengod-name {
+  flex: 1;
+  font-weight: 700;
+}
+
+.tengod-count {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.saju-daymaster-note {
+  margin: 14px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.element-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.element-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.element-name {
+  flex: 0 0 42px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.element-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  overflow: hidden;
+}
+
+.element-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.element-count {
+  flex: 0 0 18px;
+  text-align: right;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-dim);
 }
 
 .fortune-list {

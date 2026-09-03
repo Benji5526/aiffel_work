@@ -25,10 +25,50 @@
         <label for="name">이름</label>
         <input type="text" id="name" name="name" placeholder="홍길동" maxlength="20" required />
       </div>
+
       <div class="field">
-        <label for="birthDate">생년월일</label>
-        <input type="date" id="birthDate" name="birthDate" min="1900-01-01" max="2099-12-31" required />
+        <label>성별</label>
+        <div class="toggle-group" id="gender-toggle">
+          <button type="button" class="toggle-btn is-active" data-value="female">여자</button>
+          <button type="button" class="toggle-btn" data-value="male">남자</button>
+        </div>
+        <input type="hidden" id="gender" name="gender" value="female" />
       </div>
+
+      <div class="field-row">
+        <div class="field field-calendar">
+          <label for="calendarType">양력/음력</label>
+          <select id="calendarType" name="calendarType">
+            <option value="solar" selected>양력</option>
+            <option value="lunar">음력</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="birthDate">생년월일</label>
+          <input type="date" id="birthDate" name="birthDate" min="1900-01-01" max="2099-12-31" required />
+        </div>
+      </div>
+
+      <label class="checkbox-row" id="leap-row" hidden>
+        <input type="checkbox" id="isLeapMonth" name="isLeapMonth" />
+        <span>윤달이에요</span>
+      </label>
+
+      <div class="field">
+        <label for="birthTime">태어난 시간</label>
+        <input type="time" id="birthTime" name="birthTime" />
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="timeUnknown" name="timeUnknown" />
+        <span>태어난 시간을 몰라요</span>
+      </label>
+
+      <div class="field">
+        <label for="city">태어난 도시 <span class="field-optional">(선택, 진태양시 보정에 사용)</span></label>
+        <input type="text" id="city" name="city" list="city-list" placeholder="예: 서울" autocomplete="off" />
+        <datalist id="city-list"></datalist>
+      </div>
+
       <button type="submit" id="submit-btn">오늘의 운세 보기</button>
       <p id="error-msg" class="error" hidden></p>
     </form>
@@ -58,6 +98,54 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="card saju-card">
+        <h2 class="section-title">나의 사주팔자</h2>
+        <div class="saju-meta">
+          <span id="saju-lunar-date"></span>
+          <span id="saju-time-note"></span>
+        </div>
+        <div class="saju-table" id="saju-table">
+          <div class="saju-col saju-head">
+            <span></span>
+            <span>시주</span>
+            <span>일주</span>
+            <span>월주</span>
+            <span>년주</span>
+          </div>
+          <div class="saju-col">
+            <span class="saju-row-label">천간</span>
+            <span id="saju-time-gan" class="saju-cell"></span>
+            <span id="saju-day-gan" class="saju-cell saju-daymaster"></span>
+            <span id="saju-month-gan" class="saju-cell"></span>
+            <span id="saju-year-gan" class="saju-cell"></span>
+          </div>
+          <div class="saju-col">
+            <span class="saju-row-label">지지</span>
+            <span id="saju-time-zhi" class="saju-cell"></span>
+            <span id="saju-day-zhi" class="saju-cell"></span>
+            <span id="saju-month-zhi" class="saju-cell"></span>
+            <span id="saju-year-zhi" class="saju-cell"></span>
+          </div>
+          <div class="saju-col saju-shishen-row">
+            <span class="saju-row-label">십성</span>
+            <span id="saju-time-shishen" class="saju-shishen"></span>
+            <span id="saju-day-shishen" class="saju-shishen">일주</span>
+            <span id="saju-month-shishen" class="saju-shishen"></span>
+            <span id="saju-year-shishen" class="saju-shishen"></span>
+          </div>
+        </div>
+        <p class="saju-daymaster-note" id="saju-daymaster-note"></p>
+
+        <h3 class="section-subtitle">십성 분포</h3>
+        <div class="tengod-wrap">
+          <div class="donut" id="tengod-donut" style="--donut-gradient: conic-gradient(#eee 0 100%)"></div>
+          <div class="tengod-legend" id="tengod-legend"></div>
+        </div>
+
+        <h3 class="section-subtitle">오행 분포</h3>
+        <div class="element-bars" id="element-bars"></div>
       </div>
 
       <div class="card">
