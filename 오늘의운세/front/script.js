@@ -11,6 +11,12 @@ form.addEventListener("submit", async (e) => {
   const name = document.getElementById("name").value;
   const birthDate = document.getElementById("birthDate").value;
 
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+    errorMsg.textContent = "생년월일을 올바르게 입력해주세요 (연도 4자리).";
+    errorMsg.hidden = false;
+    return;
+  }
+
   submitBtn.disabled = true;
   submitBtn.textContent = "운세 확인 중...";
 
