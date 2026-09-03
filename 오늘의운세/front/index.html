@@ -7,11 +7,18 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">🔮 오늘의운세</span>
+      <span class="brand-badge">별자리 · 12지신</span>
+    </div>
+  </div>
+
   <main class="container">
-    <header>
-      <h1>✨ 오늘의 별자리 &amp; 12지신 운세</h1>
-      <p class="subtitle">이름과 생년월일을 입력하면 오늘의 운세를 알려드려요</p>
-    </header>
+    <section class="hero">
+      <h1>모두를 위한<br />오늘의 별자리 &amp; 12지신 운세</h1>
+      <p class="subtitle">이름과 생년월일만 입력하면 오늘 하루의 총운·애정운·금전운·건강운을<br class="br-desktop" />바로 확인할 수 있어요.</p>
+    </section>
 
     <form id="fortune-form" class="card form-card">
       <div class="field">
@@ -26,57 +33,87 @@
       <p id="error-msg" class="error" hidden></p>
     </form>
 
-    <section id="result" class="card result-card" hidden>
-      <div class="result-header">
-        <div class="badge">
-          <span id="western-symbol" class="symbol"></span>
-          <div>
-            <div id="western-sign" class="badge-title"></div>
-            <div class="badge-sub">별자리</div>
+    <section id="result" class="result-wrap" hidden>
+      <div class="card profile-card">
+        <div class="profile-row">
+          <div class="avatar">🔮</div>
+          <div class="profile-text">
+            <div id="result-name" class="profile-name"></div>
+            <div id="result-date" class="profile-date"></div>
           </div>
         </div>
-        <div class="badge">
-          <span id="chinese-symbol" class="symbol"></span>
-          <div>
-            <div id="chinese-animal" class="badge-title"></div>
-            <div class="badge-sub">12지신</div>
+        <div class="type-row">
+          <div class="type-pill">
+            <span id="western-symbol" class="type-symbol"></span>
+            <div>
+              <div id="western-sign" class="type-title"></div>
+              <div class="type-sub">별자리</div>
+            </div>
+          </div>
+          <div class="type-pill">
+            <span id="chinese-symbol" class="type-symbol"></span>
+            <div>
+              <div id="chinese-animal" class="type-title"></div>
+              <div class="type-sub">12지신</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <p id="result-summary" class="result-summary"></p>
-
-      <div class="fortune-grid">
-        <div class="fortune-item">
-          <div class="fortune-item-head">
-            <span>총운</span><span id="score-overall" class="score"></span>
+      <div class="card">
+        <h2 class="section-title">오늘의 운세 지수</h2>
+        <div class="fortune-list">
+          <div class="fortune-item" data-tone="overall">
+            <div class="fortune-item-head">
+              <span class="fortune-label">✨ 총운</span>
+              <span id="score-overall" class="score"></span>
+            </div>
+            <div class="bar"><div id="bar-overall" class="bar-fill"></div></div>
+            <p id="text-overall" class="fortune-text"></p>
           </div>
-          <p id="text-overall"></p>
-        </div>
-        <div class="fortune-item">
-          <div class="fortune-item-head">
-            <span>애정운</span><span id="score-love" class="score"></span>
+          <div class="fortune-item" data-tone="love">
+            <div class="fortune-item-head">
+              <span class="fortune-label">💗 애정운</span>
+              <span id="score-love" class="score"></span>
+            </div>
+            <div class="bar"><div id="bar-love" class="bar-fill"></div></div>
+            <p id="text-love" class="fortune-text"></p>
           </div>
-          <p id="text-love"></p>
-        </div>
-        <div class="fortune-item">
-          <div class="fortune-item-head">
-            <span>금전운</span><span id="score-money" class="score"></span>
+          <div class="fortune-item" data-tone="money">
+            <div class="fortune-item-head">
+              <span class="fortune-label">💰 금전운</span>
+              <span id="score-money" class="score"></span>
+            </div>
+            <div class="bar"><div id="bar-money" class="bar-fill"></div></div>
+            <p id="text-money" class="fortune-text"></p>
           </div>
-          <p id="text-money"></p>
-        </div>
-        <div class="fortune-item">
-          <div class="fortune-item-head">
-            <span>건강운</span><span id="score-health" class="score"></span>
+          <div class="fortune-item" data-tone="health">
+            <div class="fortune-item-head">
+              <span class="fortune-label">🌿 건강운</span>
+              <span id="score-health" class="score"></span>
+            </div>
+            <div class="bar"><div id="bar-health" class="bar-fill"></div></div>
+            <p id="text-health" class="fortune-text"></p>
           </div>
-          <p id="text-health"></p>
         </div>
       </div>
 
-      <div class="lucky-row">
-        <div class="lucky-item"><span class="lucky-label">행운의 색</span><span id="lucky-color"></span></div>
-        <div class="lucky-item"><span class="lucky-label">행운의 숫자</span><span id="lucky-number"></span></div>
-        <div class="lucky-item"><span class="lucky-label">행운의 아이템</span><span id="lucky-item"></span></div>
+      <div class="card lucky-card">
+        <h2 class="section-title">오늘의 행운 아이템</h2>
+        <div class="lucky-row">
+          <div class="lucky-item">
+            <span class="lucky-label">행운의 색</span>
+            <span id="lucky-color" class="lucky-value"></span>
+          </div>
+          <div class="lucky-item">
+            <span class="lucky-label">행운의 숫자</span>
+            <span id="lucky-number" class="lucky-value"></span>
+          </div>
+          <div class="lucky-item">
+            <span class="lucky-label">행운의 아이템</span>
+            <span id="lucky-item" class="lucky-value"></span>
+          </div>
+        </div>
       </div>
     </section>
 

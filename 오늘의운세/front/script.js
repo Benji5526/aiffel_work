@@ -48,8 +48,8 @@ function renderResult(data) {
   document.getElementById("chinese-symbol").textContent = data.chineseZodiac.symbol;
   document.getElementById("chinese-animal").textContent = data.chineseZodiac.animal;
 
-  document.getElementById("result-summary").textContent =
-    `${data.name}님, ${data.date} 기준 오늘의 운세입니다.`;
+  document.getElementById("result-name").textContent = `${data.name}님`;
+  document.getElementById("result-date").textContent = `${data.date} 기준 오늘의 운세`;
 
   const f = data.fortune;
   setFortune("overall", f.overall);
@@ -61,8 +61,22 @@ function renderResult(data) {
   document.getElementById("lucky-number").textContent = f.luckyNumber;
   document.getElementById("lucky-item").textContent = f.luckyItem;
 
+  // 바(bar-fill)를 0%에서 시작해 실제 점수까지 애니메이션으로 채움
+  ["overall", "love", "money", "health"].forEach((key) => {
+    document.getElementById(`bar-${key}`).style.width = "0%";
+  });
+
   resultSection.hidden = false;
   resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById("bar-overall").style.width = `${f.overall.score}%`;
+      document.getElementById("bar-love").style.width = `${f.love.score}%`;
+      document.getElementById("bar-money").style.width = `${f.money.score}%`;
+      document.getElementById("bar-health").style.width = `${f.health.score}%`;
+    });
+  });
 }
 
 function setFortune(key, item) {
