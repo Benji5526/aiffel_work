@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>오늘의 별자리 & 12지신 운세</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>✨ 오늘의 별자리 &amp; 12지신 운세</h1>
+      <p class="subtitle">이름과 생년월일을 입력하면 오늘의 운세를 알려드려요</p>
+    </header>
+
+    <form id="fortune-form" class="card form-card">
+      <div class="field">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" placeholder="홍길동" maxlength="20" required />
+      </div>
+      <div class="field">
+        <label for="birthDate">생년월일</label>
+        <input type="date" id="birthDate" name="birthDate" required />
+      </div>
+      <button type="submit" id="submit-btn">오늘의 운세 보기</button>
+      <p id="error-msg" class="error" hidden></p>
+    </form>
+
+    <section id="result" class="card result-card" hidden>
+      <div class="result-header">
+        <div class="badge">
+          <span id="western-symbol" class="symbol"></span>
+          <div>
+            <div id="western-sign" class="badge-title"></div>
+            <div class="badge-sub">별자리</div>
+          </div>
+        </div>
+        <div class="badge">
+          <span id="chinese-symbol" class="symbol"></span>
+          <div>
+            <div id="chinese-animal" class="badge-title"></div>
+            <div class="badge-sub">12지신</div>
+          </div>
+        </div>
+      </div>
+
+      <p id="result-summary" class="result-summary"></p>
+
+      <div class="fortune-grid">
+        <div class="fortune-item">
+          <div class="fortune-item-head">
+            <span>총운</span><span id="score-overall" class="score"></span>
+          </div>
+          <p id="text-overall"></p>
+        </div>
+        <div class="fortune-item">
+          <div class="fortune-item-head">
+            <span>애정운</span><span id="score-love" class="score"></span>
+          </div>
+          <p id="text-love"></p>
+        </div>
+        <div class="fortune-item">
+          <div class="fortune-item-head">
+            <span>금전운</span><span id="score-money" class="score"></span>
+          </div>
+          <p id="text-money"></p>
+        </div>
+        <div class="fortune-item">
+          <div class="fortune-item-head">
+            <span>건강운</span><span id="score-health" class="score"></span>
+          </div>
+          <p id="text-health"></p>
+        </div>
+      </div>
+
+      <div class="lucky-row">
+        <div class="lucky-item"><span class="lucky-label">행운의 색</span><span id="lucky-color"></span></div>
+        <div class="lucky-item"><span class="lucky-label">행운의 숫자</span><span id="lucky-number"></span></div>
+        <div class="lucky-item"><span class="lucky-label">행운의 아이템</span><span id="lucky-item"></span></div>
+      </div>
+    </section>
+
+    <footer>
+      <p>본 결과는 재미로 보는 콘텐츠이며 실제 운세와 무관합니다.</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

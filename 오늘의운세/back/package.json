@@ -1,0 +1,13 @@
+{
+  "name": "todays-fortune-backend",
+  "version": "1.0.0",
+  "description": "오늘의 별자리 & 12지신 운세 API 서버",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
