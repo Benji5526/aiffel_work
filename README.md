@@ -8,7 +8,7 @@ AIFFEL 학습/실습용 작업 저장소입니다.
 
 이름·성별·생년월일시(양력/음력)·출생 도시를 입력하면 서양 별자리, 12지신(띠), 사주팔자(년/월/일/시주, 오행 분포, 진태양시 보정), 그리고 오늘의 운세(총운/애정운/금전운/건강운, 행운의 색·숫자·아이템)를 보여주는 웹앱입니다.
 
-- 🔗 **바로 사용해보기**: https://appearing-facilities-idea-browsers.trycloudflare.com
+- 🔗 **바로 사용해보기**: https://processes-occasionally-soviet-healing.trycloudflare.com
   > Cloudflare Quick Tunnel 임시 URL입니다. 로컬 서버가 켜져 있을 때만 접속 가능하며, 서버를 재시작하면 URL이 바뀔 수 있습니다.
 - **프론트엔드**: [`오늘의운세/front`](./오늘의운세/front) — 순수 HTML/CSS/JS
 - **백엔드**: [`오늘의운세/back`](./오늘의운세/back) — Node.js + Express API
