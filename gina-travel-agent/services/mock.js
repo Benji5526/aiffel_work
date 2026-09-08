@@ -28,8 +28,10 @@ function mockExtractMemory(message) {
   const lower = message.toLowerCase();
 
   let people = null;
-  const numMatch = lower.match(/(\d+)\s*(people|pax|persons?|of us)/);
-  if (numMatch) people = parseInt(numMatch[1], 10);
+  const totalMatch = lower.match(/(\d+)\s*(people|pax|persons?|of us)/);
+  const friendsMatch = lower.match(/(\d+)\s*friends?/);
+  if (totalMatch) people = parseInt(totalMatch[1], 10);
+  else if (friendsMatch) people = parseInt(friendsMatch[1], 10) + 1; // 본인 + 친구 N명
   else if (/partner|couple|my wife|my husband|my girlfriend|my boyfriend/.test(lower)) people = 2;
 
   const months = [
