@@ -1,0 +1,22 @@
+{
+  "name": "todo-app-mcp",
+  "version": "1.0.0",
+  "description": "할 일 관리 MCP 서버 및 CLI",
+  "main": "mcp-server.js",
+  "bin": {
+    "todo": "./cli.js"
+  },
+  "scripts": {
+    "start": "node mcp-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "better-sqlite3": "^13.0.3",
+    "zod": "^4.5.4"
+  }
+}

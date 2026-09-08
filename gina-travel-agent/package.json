@@ -1,0 +1,17 @@
+{
+  "name": "gina-travel-agent",
+  "version": "1.0.0",
+  "description": "AI 여행 상담원 Gina - MVP (의도 분석 + 고객 메모리 + 페르소나 + 답변 생성)",
+  "main": "cli.js",
+  "scripts": {
+    "chat": "node cli.js chat"
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/genai": "^2.21.0",
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^17.4.2",
+    "zod": "^4.5.4"
+  }
+}

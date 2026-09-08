@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <h1>할 일</h1>
+
+    <form id="add-form" class="add-form">
+      <input type="text" id="title-input" placeholder="할 일을 입력하세요" required>
+      <input type="date" id="due-date-input">
+      <input type="text" id="tags-input" placeholder="태그 (콤마로 구분)">
+      <button type="submit">추가</button>
+    </form>
+
+    <div class="filter-bar">
+      <input type="text" id="search-input" placeholder="검색...">
+      <select id="tag-filter">
+        <option value="">전체 태그</option>
+      </select>
+      <label class="today-toggle">
+        <input type="checkbox" id="today-toggle">
+        오늘 할 일만
+      </label>
+    </div>
+
+    <ul id="todo-list" class="todo-list"></ul>
+    <p id="empty-message" class="empty-message" hidden>표시할 할 일이 없습니다.</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
