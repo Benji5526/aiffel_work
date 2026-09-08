@@ -1,6 +1,6 @@
 # Gina Travel Agent (MVP)
 
-AI 여행 상담원 Gina. 코어(의도 분석+고객 메모리+페르소나+답변 생성)는 두 가지 채널로 쓸 수 있다: 터미널 CLI(테스트/개발용)와 Instagram DM(실제 채널, 웹훅 기반).
+AI 여행 상담원 Gina. 코어(의도 분석+고객 메모리+페르소나+답변 생성)는 세 가지 채널로 쓸 수 있다: 터미널 CLI(테스트/개발용), 웹 채팅(이름만으로 여러 사람이 접속), Instagram DM(실제 채널, 웹훅 기반).
 
 ## 포함된 것
 
@@ -29,6 +29,16 @@ node cli.js chat <고객이름>
 ## LLM
 
 [Google Gemini API](https://ai.google.dev) (`gemini-3.8-flash`, `@google/genai` SDK)를 사용한다. 무료 티어로 시작 가능.
+
+## 웹 채팅
+
+여러 사람이 브라우저로 접속해서 Gina와 대화할 수 있는 간단한 채팅 화면. 로그인은 없고 **이름만 입력받아 구분**한다 (같은 이름을 쓰면 같은 대화로 취급됨 — MVP 한계). 지금은 **내 컴퓨터/네트워크에서만** 접근 가능(공개 배포는 다루지 않음).
+
+```
+node web-server.js
+```
+
+기본 포트 3001 (`WEB_PORT` 환경변수로 변경 가능). `http://localhost:3001` 접속 → 이름 입력 → 대화 시작. `cli.js`/`webhook-server.js`와 똑같은 서비스 계층을 재사용하며, 고객은 `platform='web'`으로 저장된다.
 
 ## Instagram 연동
 
@@ -66,5 +76,6 @@ X/Threads는 다루지 않는다 — 근거는 `openspec/changes/instagram-platf
 - `services/replyAgent.js` — 페르소나 기반 응답 생성
 - `services/mock.js` — API 키 없을 때 쓰는 규칙 기반 가짜 구현
 - `cli.js` — 터미널 채팅 진입점 (테스트/개발용)
+- `web-server.js` + `public/` — 여러 사람이 접속하는 웹 채팅 화면 (이름만으로 구분, 로컬 전용)
 - `webhook-server.js` — Instagram 웹훅 HTTP 서버 (실제 채널 진입점)
 - `platforms/instagram.js` — 웹훅 검증/파싱, Send API 호출

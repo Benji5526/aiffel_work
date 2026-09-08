@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gina - AI 여행 상담원</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="name-screen" class="screen">
+    <div class="card">
+      <h1>Gina와 대화하기</h1>
+      <p>이름을 입력하고 시작하세요.</p>
+      <input id="name-input" type="text" placeholder="이름" maxlength="30" />
+      <button id="start-btn">시작하기</button>
+    </div>
+  </div>
+
+  <div id="chat-screen" class="screen hidden">
+    <header>
+      <h2>Gina - AI 여행 상담원</h2>
+      <span id="user-label"></span>
+    </header>
+    <div id="messages"></div>
+    <form id="chat-form">
+      <input id="chat-input" type="text" placeholder="메시지를 입력하세요" autocomplete="off" />
+      <button type="submit">전송</button>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
