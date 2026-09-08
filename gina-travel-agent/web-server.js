@@ -5,32 +5,40 @@ const express = require('express');
 const memory = require('./services/memoryService');
 const { extractMessage } = require('./services/extractAgent');
 const { generateReply } = require('./services/replyAgent');
+const { verifyAccessToken } = require('./services/supabaseAuth');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 이름만으로 사람을 구분한다 (로그인 없음, MVP 범위) - 같은 이름을 쓰는 다른 사람과는
-// 대화가 섞일 수 있다는 한계를 감수한다 (cli.js/webhook-server.js와 같은 서비스 계층 재사용).
-//
-// WEB_ACCESS_PASSWORD가 설정되어 있으면 요청마다 비밀번호를 확인한다 - 터널(ngrok 등)로
-// 공개할 때 아무나 무료 API 할당량을 쓰지 못하게 막는 최소한의 보호막이다.
-// 설정 안 하면(로컬 전용일 때) 그냥 통과시킨다.
-app.post('/api/chat', async (req, res) => {
-  const { name, message, password } = req.body || {};
+// anon key는 공개돼도 되는 값(Supabase 설계상 클라이언트에 노출 전제) - 서버에서
+// 만들어 내려주면 프론트엔드 코드에 하드코딩하지 않아도 된다.
+app.get('/config.js', (req, res) => {
+  res.type('application/javascript').send(
+    `window.__SUPABASE_URL__ = ${JSON.stringify(process.env.SUPABASE_URL || '')};\n` +
+      `window.__SUPABASE_ANON_KEY__ = ${JSON.stringify(process.env.SUPABASE_ANON_KEY || '')};\n`
+  );
+});
 
-  const requiredPassword = process.env.WEB_ACCESS_PASSWORD;
-  if (requiredPassword && password !== requiredPassword) {
-    return res.status(401).json({ error: '비밀번호가 올바르지 않습니다.' });
+// Supabase 계정으로 로그인한 사람만 접근 가능 - 터널로 공개할 때 아무나 무료 API
+// 할당량을 쓰지 못하게 막는 보호막이다 (이름만 입력받던 이전 방식을 대체).
+app.post('/api/chat', async (req, res) => {
+  const { message } = req.body || {};
+
+  const authHeader = req.headers.authorization || '';
+  const accessToken = authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+  const user = await verifyAccessToken(accessToken);
+  if (!user) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' });
   }
 
-  if (!name || !name.trim() || !message || !message.trim()) {
-    return res.status(400).json({ error: 'name과 message가 모두 필요합니다.' });
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: 'message가 필요합니다.' });
   }
 
   try {
-    const customer = memory.getOrCreateCustomer('web', name.trim(), name.trim());
+    const customer = memory.getOrCreateCustomer('web', user.id, user.email);
 
     const extracted = await extractMessage(message);
     const intent = { intent: extracted.intent, destination: extracted.destination, product: extracted.product };

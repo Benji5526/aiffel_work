@@ -10,6 +10,7 @@
   "type": "commonjs",
   "dependencies": {
     "@google/genai": "^2.21.0",
+    "@supabase/supabase-js": "^2.116.0",
     "better-sqlite3": "^13.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

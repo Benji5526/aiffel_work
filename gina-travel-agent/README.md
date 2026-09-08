@@ -1,6 +1,6 @@
 # Gina Travel Agent (MVP)
 
-AI 여행 상담원 Gina. 코어(의도 분석+고객 메모리+페르소나+답변 생성)는 세 가지 채널로 쓸 수 있다: 터미널 CLI(테스트/개발용), 웹 채팅(이름만으로 여러 사람이 접속), Instagram DM(실제 채널, 웹훅 기반).
+AI 여행 상담원 Gina. 코어(의도 분석+고객 메모리+페르소나+답변 생성)는 세 가지 채널로 쓸 수 있다: 터미널 CLI(테스트/개발용), 웹 채팅(Supabase 계정으로 로그인, 여러 사람이 접속), Instagram DM(실제 채널, 웹훅 기반).
 
 ## 포함된 것
 
@@ -32,17 +32,19 @@ node cli.js chat <고객이름>
 
 ## 웹 채팅
 
-여러 사람이 브라우저로 접속해서 Gina와 대화할 수 있는 간단한 채팅 화면. 로그인은 없고 **이름만 입력받아 구분**한다 (같은 이름을 쓰면 같은 대화로 취급됨 — MVP 한계).
+여러 사람이 브라우저로 접속해서 Gina와 대화할 수 있는 채팅 화면. **Supabase 계정으로 회원가입/로그인**한 사람만 대화할 수 있다.
 
 ```
 node web-server.js
 ```
 
-기본 포트 3001 (`WEB_PORT` 환경변수로 변경 가능). `http://localhost:3001` 접속 → 이름/비밀번호 입력 → 대화 시작. `cli.js`/`webhook-server.js`와 똑같은 서비스 계층을 재사용하며, 고객은 `platform='web'`으로 저장된다.
+기본 포트 3001 (`WEB_PORT` 환경변수로 변경 가능). `http://localhost:3001` 접속 → 이메일/비밀번호로 회원가입 또는 로그인 → 대화 시작. `cli.js`/`webhook-server.js`와 똑같은 서비스 계층을 재사용하며, 고객은 `platform='web'`, `platform_user_id`는 Supabase 계정의 user id로 저장된다.
 
-### 비밀번호 보호
+### Supabase 설정
 
-`.env`에 `WEB_ACCESS_PASSWORD`를 설정하면 `/api/chat` 요청마다 비밀번호를 확인한다 (틀리면 401). 설정하지 않으면(로컬 전용일 때) 그냥 통과된다. 터널 등으로 외부에 공개할 때는 무료 API 할당량을 아무나 쓰지 못하게 반드시 설정할 것.
+`.env`에 `SUPABASE_URL`, `SUPABASE_ANON_KEY`를 채운다 (Supabase 대시보드 → Project Settings → API에서 확인. anon key는 공개돼도 되는 값). `/api/chat` 요청은 `Authorization: Bearer <access token>` 헤더를 검증한 뒤에만 처리한다 — 로그인 없이는 호출할 수 없으므로 터널 등으로 외부에 공개해도 아무나 무료 API 할당량을 쓸 수 없다.
+
+기본적으로 Supabase는 가입 시 이메일 확인을 요구한다(무료 이메일 발송 한도가 낮음). 테스트 중 즉시 로그인하고 싶다면 대시보드 → Authentication → Sign In / Providers → Email에서 "Confirm email"을 꺼둘 수 있다(실제 서비스에서는 다시 켤 것).
 
 ### 임시 공개 (터널)
 
@@ -52,7 +54,7 @@ node web-server.js
 cloudflared tunnel --url http://localhost:3001
 ```
 
-실행하면 `https://<임의문자열>.trycloudflare.com` 형태의 임시 URL이 출력된다. 이 URL은 `cloudflared` 프로세스가 살아있는 동안만 유효하고, 종료하면 사라진다 — 영구 배포가 아니라 임시 공유용이다. 공개하기 전에 `WEB_ACCESS_PASSWORD`를 반드시 설정해서 비밀번호 보호를 켤 것.
+실행하면 `https://<임의문자열>.trycloudflare.com` 형태의 임시 URL이 출력된다. 이 URL은 `cloudflared` 프로세스가 살아있는 동안만 유효하고, 종료하면 사라진다 — 영구 배포가 아니라 임시 공유용이다.
 
 ## Instagram 연동
 
@@ -89,7 +91,8 @@ X/Threads는 다루지 않는다 — 근거는 `openspec/changes/instagram-platf
 - `services/memoryService.js` — 고객 프로필 조회/저장 (DB 병합, LLM 호출 없음)
 - `services/replyAgent.js` — 페르소나 기반 응답 생성
 - `services/mock.js` — API 키 없을 때 쓰는 규칙 기반 가짜 구현
+- `services/supabaseAuth.js` — 웹 채팅 요청의 access token을 Supabase Auth 서버에 검증
 - `cli.js` — 터미널 채팅 진입점 (테스트/개발용)
-- `web-server.js` + `public/` — 여러 사람이 접속하는 웹 채팅 화면 (이름만으로 구분, 로컬 전용)
+- `web-server.js` + `public/` — 여러 사람이 접속하는 웹 채팅 화면 (Supabase 계정으로 로그인)
 - `webhook-server.js` — Instagram 웹훅 HTTP 서버 (실제 채널 진입점)
 - `platforms/instagram.js` — 웹훅 검증/파싱, Send API 호출

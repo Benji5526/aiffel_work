@@ -1,15 +1,24 @@
-const nameScreen = document.getElementById('name-screen');
+const supabaseClient = window.supabase.createClient(window.__SUPABASE_URL__, window.__SUPABASE_ANON_KEY__);
+
+const authScreen = document.getElementById('auth-screen');
 const chatScreen = document.getElementById('chat-screen');
-const nameInput = document.getElementById('name-input');
-const passwordInput = document.getElementById('password-input');
-const startBtn = document.getElementById('start-btn');
+const emailInput = document.getElementById('email-input');
+const authPasswordInput = document.getElementById('auth-password-input');
+const loginBtn = document.getElementById('login-btn');
+const signupBtn = document.getElementById('signup-btn');
+const authMsg = document.getElementById('auth-msg');
+const logoutBtn = document.getElementById('logout-btn');
 const userLabel = document.getElementById('user-label');
 const messagesEl = document.getElementById('messages');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 
-let userName = '';
-let userPassword = '';
+let session = null;
+
+function showAuthMessage(text) {
+  authMsg.textContent = text;
+  authMsg.classList.remove('hidden');
+}
 
 function addMessage(role, text, pending) {
   const el = document.createElement('div');
@@ -20,30 +29,68 @@ function addMessage(role, text, pending) {
   return el;
 }
 
-function startChat() {
-  const value = nameInput.value.trim();
-  if (!value) return;
-  userName = value;
-  userPassword = passwordInput.value;
-  userLabel.textContent = userName;
-  nameScreen.classList.add('hidden');
+function enterChatScreen() {
+  userLabel.textContent = session.user.email;
+  authScreen.classList.add('hidden');
   chatScreen.classList.remove('hidden');
+  messagesEl.innerHTML = '';
   addMessage('gina', '안녕하세요! 여행 관련해서 무엇이든 물어보세요.');
   chatInput.focus();
 }
 
-startBtn.addEventListener('click', startChat);
-nameInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') startChat();
+function backToAuthScreen() {
+  session = null;
+  chatScreen.classList.add('hidden');
+  authScreen.classList.remove('hidden');
+}
+
+async function handleLogin() {
+  const email = emailInput.value.trim();
+  const password = authPasswordInput.value;
+  if (!email || !password) return;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    showAuthMessage(`로그인 실패: ${error.message}`);
+    return;
+  }
+  session = data.session;
+  enterChatScreen();
+}
+
+async function handleSignup() {
+  const email = emailInput.value.trim();
+  const password = authPasswordInput.value;
+  if (!email || !password) return;
+
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+  if (error) {
+    showAuthMessage(`회원가입 실패: ${error.message}`);
+    return;
+  }
+  if (!data.session) {
+    showAuthMessage('가입 확인 메일을 보냈습니다. 메일함을 확인한 뒤 로그인해주세요.');
+    return;
+  }
+  session = data.session;
+  enterChatScreen();
+}
+
+loginBtn.addEventListener('click', handleLogin);
+signupBtn.addEventListener('click', handleSignup);
+authPasswordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleLogin();
 });
-passwordInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') startChat();
+
+logoutBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  backToAuthScreen();
 });
 
 chatForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
-  if (!text) return;
+  if (!text || !session) return;
 
   chatInput.value = '';
   addMessage('user', text);
@@ -52,11 +99,19 @@ chatForm.addEventListener('submit', async (e) => {
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: userName, message: text, password: userPassword }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ message: text }),
     });
     const data = await res.json();
     pendingEl.classList.remove('pending');
+    if (res.status === 401) {
+      backToAuthScreen();
+      showAuthMessage('세션이 만료됐습니다. 다시 로그인해주세요.');
+      return;
+    }
     pendingEl.textContent = res.ok ? data.reply : `오류: ${data.error || '알 수 없는 오류'}`;
   } catch (err) {
     pendingEl.classList.remove('pending');
@@ -64,3 +119,11 @@ chatForm.addEventListener('submit', async (e) => {
   }
   messagesEl.scrollTop = messagesEl.scrollHeight;
 });
+
+(async () => {
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session) {
+    session = data.session;
+    enterChatScreen();
+  }
+})();

@@ -7,13 +7,15 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="name-screen" class="screen">
+  <div id="auth-screen" class="screen">
     <div class="card">
       <h1>Gina와 대화하기</h1>
-      <p>이름을 입력하고 시작하세요.</p>
-      <input id="name-input" type="text" placeholder="이름" maxlength="30" />
-      <input id="password-input" type="password" placeholder="비밀번호" autocomplete="off" />
-      <button id="start-btn">시작하기</button>
+      <p id="auth-mode-label">로그인하고 시작하세요.</p>
+      <input id="email-input" type="email" placeholder="이메일" autocomplete="username" />
+      <input id="auth-password-input" type="password" placeholder="비밀번호" autocomplete="current-password" />
+      <button id="login-btn">로그인</button>
+      <button id="signup-btn" class="secondary">회원가입</button>
+      <p id="auth-msg" class="msg-line hidden"></p>
     </div>
   </div>
 
@@ -21,6 +23,7 @@
     <header>
       <h2>Gina - AI 여행 상담원</h2>
       <span id="user-label"></span>
+      <button id="logout-btn">로그아웃</button>
     </header>
     <div id="messages"></div>
     <form id="chat-form">
@@ -29,6 +32,8 @@
     </form>
   </div>
 
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
