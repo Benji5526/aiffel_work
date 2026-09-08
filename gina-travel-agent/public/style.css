@@ -41,7 +41,8 @@ body {
   font-size: 14px;
 }
 
-#name-input {
+#name-input,
+#password-input {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #d8d2c8;

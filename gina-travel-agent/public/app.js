@@ -1,6 +1,7 @@
 const nameScreen = document.getElementById('name-screen');
 const chatScreen = document.getElementById('chat-screen');
 const nameInput = document.getElementById('name-input');
+const passwordInput = document.getElementById('password-input');
 const startBtn = document.getElementById('start-btn');
 const userLabel = document.getElementById('user-label');
 const messagesEl = document.getElementById('messages');
@@ -8,6 +9,7 @@ const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 
 let userName = '';
+let userPassword = '';
 
 function addMessage(role, text, pending) {
   const el = document.createElement('div');
@@ -22,6 +24,7 @@ function startChat() {
   const value = nameInput.value.trim();
   if (!value) return;
   userName = value;
+  userPassword = passwordInput.value;
   userLabel.textContent = userName;
   nameScreen.classList.add('hidden');
   chatScreen.classList.remove('hidden');
@@ -31,6 +34,9 @@ function startChat() {
 
 startBtn.addEventListener('click', startChat);
 nameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') startChat();
+});
+passwordInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') startChat();
 });
 
@@ -47,7 +53,7 @@ chatForm.addEventListener('submit', async (e) => {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: userName, message: text }),
+      body: JSON.stringify({ name: userName, message: text, password: userPassword }),
     });
     const data = await res.json();
     pendingEl.classList.remove('pending');
