@@ -1,0 +1,7 @@
+# 텍스트 파일은 저장소에는 LF로 보관하고, 체크아웃 시 OS 기본 줄바꿈으로 변환
+* text=auto eol=lf
+
+# 바이너리로 취급해 줄바꿈 변환에서 제외
+*.png binary
+*.jpg binary
+*.ico binary
