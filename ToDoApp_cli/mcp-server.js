@@ -52,7 +52,7 @@ server.tool(
     id: z.number().int().describe('수정할 할 일의 id'),
     title: z.string().min(1).optional(),
     completed: z.boolean().optional(),
-    due_date: z.string().nullable().optional(),
+    due_date: z.string().nullable().optional().describe('마감일 (YYYY-MM-DD), null이면 해제'),
     tags: z.array(z.string()).optional(),
   },
   async ({ id, title, completed, due_date, tags }) => {
