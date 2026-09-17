@@ -1,5 +1,16 @@
 const db = require('../db');
 
+// 이 앱은 한국 시간(KST, UTC+9) 기준으로 "오늘"을 판단한다. SQLite의 'now'와
+// 저장된 타임스탬프는 모두 UTC라 +9시간을 더해야 KST 날짜가 된다.
+// 한국은 서머타임이 없어 고정 오프셋으로 충분하다.
+const KST_SHIFT = '+9 hours';
+
+// 다듬은 title을 돌려주고, 문자열이 아니거나 공백뿐이면 null을 돌려준다.
+function normalizeTitle(title) {
+  if (typeof title !== 'string') return null;
+  return title.trim() || null;
+}
+
 function getTagsForTodo(todoId) {
   return db
     .prepare(
@@ -51,7 +62,7 @@ function listTodos({ q, date, tag } = {}) {
     params.push(`%${q}%`);
   }
   if (date === 'today') {
-    clauses.push("todos.due_date = date('now')");
+    clauses.push(`todos.due_date = date('now', '${KST_SHIFT}')`);
   }
   if (clauses.length) sql += ' WHERE ' + clauses.join(' AND ');
   sql += ' ORDER BY todos.completed ASC, (todos.due_date IS NULL), todos.due_date ASC, todos.id DESC';
@@ -61,7 +72,8 @@ function listTodos({ q, date, tag } = {}) {
 
 // { title, due_date?, tags? } -> todo | throws Error
 function addTodo({ title, due_date, tags } = {}) {
-  if (!title || !title.trim()) {
+  const newTitle = normalizeTitle(title);
+  if (newTitle === null) {
     const err = new Error('title은 필수입니다.');
     err.code = 'INVALID_TITLE';
     throw err;
@@ -69,7 +81,7 @@ function addTodo({ title, due_date, tags } = {}) {
 
   const result = db
     .prepare('INSERT INTO todos (title, due_date) VALUES (?, ?)')
-    .run(title.trim(), due_date || null);
+    .run(newTitle, due_date || null);
 
   setTodoTags(result.lastInsertRowid, parseTagNames(tags));
 
@@ -82,6 +94,19 @@ function updateTodo(id, { title, completed, due_date, tags } = {}) {
   const existing = db.prepare('SELECT * FROM todos WHERE id = ?').get(id);
   if (!existing) return null;
 
+  // title을 보냈다면 반드시 유효해야 한다. 검증 없이 title.trim()을 부르면
+  // null일 때 TypeError가 나고, 공백뿐이면 빈 제목이 저장된다.
+  let nextTitle = existing.title;
+  if (title !== undefined) {
+    const normalized = normalizeTitle(title);
+    if (normalized === null) {
+      const err = new Error('title은 비어 있을 수 없습니다.');
+      err.code = 'INVALID_TITLE';
+      throw err;
+    }
+    nextTitle = normalized;
+  }
+
   db.prepare(
     `UPDATE todos SET
        title = ?,
@@ -90,7 +115,7 @@ function updateTodo(id, { title, completed, due_date, tags } = {}) {
        updated_at = datetime('now')
      WHERE id = ?`
   ).run(
-    title !== undefined ? title.trim() : existing.title,
+    nextTitle,
     completed !== undefined ? (completed ? 1 : 0) : existing.completed,
     due_date !== undefined ? (due_date || null) : existing.due_date,
     existing.id
@@ -118,7 +143,8 @@ function summaryToday() {
   return db
     .prepare(
       `SELECT * FROM todos
-       WHERE completed = 1 AND date(updated_at) = date('now')
+       WHERE completed = 1
+         AND date(updated_at, '${KST_SHIFT}') = date('now', '${KST_SHIFT}')
        ORDER BY updated_at DESC`
     )
     .all()

@@ -3,6 +3,16 @@ const db = require('../db');
 
 const router = express.Router();
 
+// 이 앱은 한국 시간(KST, UTC+9) 기준으로 "오늘"을 판단한다. SQLite의 'now'는 UTC라
+// +9시간을 더해야 KST 날짜가 된다. 한국은 서머타임이 없어 고정 오프셋으로 충분하다.
+const KST_SHIFT = '+9 hours';
+
+// 다듬은 title을 돌려주고, 문자열이 아니거나 공백뿐이면 null을 돌려준다.
+function normalizeTitle(title) {
+  if (typeof title !== 'string') return null;
+  return title.trim() || null;
+}
+
 function getTagsForTodo(todoId) {
   return db
     .prepare(
@@ -56,7 +66,7 @@ router.get('/', (req, res) => {
     params.push(`%${q}%`);
   }
   if (date === 'today') {
-    clauses.push("todos.due_date = date('now')");
+    clauses.push(`todos.due_date = date('now', '${KST_SHIFT}')`);
   }
   if (clauses.length) sql += ' WHERE ' + clauses.join(' AND ');
   sql += ' ORDER BY todos.completed ASC, (todos.due_date IS NULL), todos.due_date ASC, todos.id DESC';
@@ -68,13 +78,14 @@ router.get('/', (req, res) => {
 // POST /api/todos { title, due_date?, tags? }
 router.post('/', (req, res) => {
   const { title, due_date, tags } = req.body;
-  if (!title || !title.trim()) {
+  const newTitle = normalizeTitle(title);
+  if (newTitle === null) {
     return res.status(400).json({ error: 'title은 필수입니다.' });
   }
 
   const result = db
     .prepare('INSERT INTO todos (title, due_date) VALUES (?, ?)')
-    .run(title.trim(), due_date || null);
+    .run(newTitle, due_date || null);
 
   setTodoTags(result.lastInsertRowid, parseTagNames(tags));
 
@@ -88,6 +99,18 @@ router.patch('/:id', (req, res) => {
   if (!existing) return res.status(404).json({ error: '할 일을 찾을 수 없습니다.' });
 
   const { title, completed, due_date, tags } = req.body;
+
+  // title을 보냈다면 반드시 유효해야 한다. 검증 없이 title.trim()을 부르면
+  // null일 때 TypeError로 500이 나고, 공백뿐이면 빈 제목이 저장된다.
+  let nextTitle = existing.title;
+  if (title !== undefined) {
+    const normalized = normalizeTitle(title);
+    if (normalized === null) {
+      return res.status(400).json({ error: 'title은 비어 있을 수 없습니다.' });
+    }
+    nextTitle = normalized;
+  }
+
   db.prepare(
     `UPDATE todos SET
        title = ?,
@@ -96,7 +119,7 @@ router.patch('/:id', (req, res) => {
        updated_at = datetime('now')
      WHERE id = ?`
   ).run(
-    title !== undefined ? title.trim() : existing.title,
+    nextTitle,
     completed !== undefined ? (completed ? 1 : 0) : existing.completed,
     due_date !== undefined ? (due_date || null) : existing.due_date,
     existing.id
