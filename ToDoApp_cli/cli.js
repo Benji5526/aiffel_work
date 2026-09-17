@@ -104,4 +104,9 @@ function main() {
   }
 }
 
-main();
+// 직접 실행할 때만 동작시킨다. require 하면 헬퍼만 가져다 쓸 수 있어 테스트가 가능해진다.
+if (require.main === module) {
+  main();
+}
+
+module.exports = { parseFlags, formatTodo, main, USAGE };
