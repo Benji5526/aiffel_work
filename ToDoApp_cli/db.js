@@ -1,7 +1,11 @@
 const path = require('path');
 const Database = require('better-sqlite3');
 
-const db = new Database(path.join(__dirname, 'todo.db'));
+// 기본은 프로젝트 폴더의 todo.db. 테스트처럼 격리된 DB가 필요하면
+// TODO_DB_PATH 로 경로를 넘긴다.
+const dbFile = process.env.TODO_DB_PATH || path.join(__dirname, 'todo.db');
+
+const db = new Database(dbFile);
 
 db.pragma('foreign_keys = ON');
 
