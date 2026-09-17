@@ -1,0 +1,9 @@
+# Sibling projects that live here as working copies but are tracked in
+# their own GitHub repositories. Committing them from here would only
+# record broken gitlinks, so keep them out of this repo entirely.
+/DM-auto/
+/gina-travel-agent/
+/pose-image-tool/
+
+# oh-my-claudecode runtime state (session logs, handoffs, scratch plans)
+.omc/
