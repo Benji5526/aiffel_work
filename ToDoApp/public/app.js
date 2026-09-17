@@ -39,8 +39,10 @@ async function fetchTags() {
   tagFilter.value = current;
 }
 
+// 서버와 같은 한국 시간(KST, UTC+9) 기준 날짜를 쓴다. toISOString()은 UTC라
+// 브라우저가 어느 시간대에 있든 KST 자정~오전 9시 사이에는 어제 날짜가 나온다.
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  return new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 function renderTodos(todos) {

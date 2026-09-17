@@ -56,9 +56,13 @@ server.tool(
     tags: z.array(z.string()).optional(),
   },
   async ({ id, title, completed, due_date, tags }) => {
-    const todo = todoService.updateTodo(id, { title, completed, due_date, tags });
-    if (!todo) return fail(`id=${id} 할 일을 찾을 수 없습니다.`);
-    return ok(todo);
+    try {
+      const todo = todoService.updateTodo(id, { title, completed, due_date, tags });
+      if (!todo) return fail(`id=${id} 할 일을 찾을 수 없습니다.`);
+      return ok(todo);
+    } catch (err) {
+      return fail(err.message);
+    }
   }
 );
 
