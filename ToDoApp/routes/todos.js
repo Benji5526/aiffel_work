@@ -13,6 +13,22 @@ function normalizeTitle(title) {
   return title.trim() || null;
 }
 
+// 마감일은 YYYY-MM-DD만 받는다. null·빈 문자열은 "마감일 없음"으로 본다.
+// 정규식만으로는 2026-02-30 같은 없는 날짜가 통과하므로 되돌려 확인한다.
+function normalizeDueDate(dueDate) {
+  if (dueDate === undefined || dueDate === null || dueDate === '') return { ok: true, value: null };
+  if (typeof dueDate !== 'string') return { ok: false, value: null };
+
+  const text = dueDate.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return { ok: false, value: null };
+
+  const parsed = new Date(text + 'T00:00:00Z');
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== text) {
+    return { ok: false, value: null };
+  }
+  return { ok: true, value: text };
+}
+
 function getTagsForTodo(todoId) {
   return db
     .prepare(
@@ -83,9 +99,14 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'title은 필수입니다.' });
   }
 
+  const newDue = normalizeDueDate(due_date);
+  if (!newDue.ok) {
+    return res.status(400).json({ error: 'due_date는 YYYY-MM-DD 형식이어야 합니다.' });
+  }
+
   const result = db
     .prepare('INSERT INTO todos (title, due_date) VALUES (?, ?)')
-    .run(newTitle, due_date || null);
+    .run(newTitle, newDue.value);
 
   setTodoTags(result.lastInsertRowid, parseTagNames(tags));
 
@@ -111,6 +132,15 @@ router.patch('/:id', (req, res) => {
     nextTitle = normalized;
   }
 
+  let nextDue = existing.due_date;
+  if (due_date !== undefined) {
+    const normalized = normalizeDueDate(due_date);
+    if (!normalized.ok) {
+      return res.status(400).json({ error: 'due_date는 YYYY-MM-DD 형식이어야 합니다.' });
+    }
+    nextDue = normalized.value;
+  }
+
   db.prepare(
     `UPDATE todos SET
        title = ?,
@@ -121,7 +151,7 @@ router.patch('/:id', (req, res) => {
   ).run(
     nextTitle,
     completed !== undefined ? (completed ? 1 : 0) : existing.completed,
-    due_date !== undefined ? (due_date || null) : existing.due_date,
+    nextDue,
     existing.id
   );
 
