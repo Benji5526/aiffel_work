@@ -51,22 +51,30 @@ function cmdList(args) {
   todos.forEach((todo) => console.log(formatTodo(todo)));
 }
 
-function cmdDone(args) {
+function cmdSetCompleted(args, { command, completed, label }) {
   const { positional } = parseFlags(args);
   const id = Number(positional[0]);
   if (!Number.isInteger(id)) {
-    console.error('사용법: todo done <id>');
+    console.error(`사용법: todo ${command} <id>`);
     process.exitCode = 1;
     return;
   }
 
-  const todo = todoService.updateTodo(id, { completed: true });
+  const todo = todoService.updateTodo(id, { completed });
   if (!todo) {
     console.error(`id=${id} 할 일을 찾을 수 없습니다.`);
     process.exitCode = 1;
     return;
   }
-  console.log(`완료 처리됨: ${formatTodo(todo)}`);
+  console.log(`${label}: ${formatTodo(todo)}`);
+}
+
+function cmdDone(args) {
+  cmdSetCompleted(args, { command: 'done', completed: true, label: '완료 처리됨' });
+}
+
+function cmdUndone(args) {
+  cmdSetCompleted(args, { command: 'undone', completed: false, label: '완료 해제됨' });
 }
 
 function cmdSummary() {
@@ -79,6 +87,7 @@ const USAGE = `사용법:
   todo add <제목> [--due YYYY-MM-DD] [--tags 태그1,태그2]
   todo list [--tag 태그] [--today] [--q 검색어]
   todo done <id>
+  todo undone <id>
   todo summary`;
 
 function main() {
@@ -92,6 +101,8 @@ function main() {
         return cmdList(rest);
       case 'done':
         return cmdDone(rest);
+      case 'undone':
+        return cmdUndone(rest);
       case 'summary':
         return cmdSummary();
       default:
