@@ -3,7 +3,7 @@
 할 일을 관리하는 로컬 앱. 데이터는 SQLite 파일(`todo.db`) 하나에 저장되어 껐다 켜도 남습니다. 같은 할 일 로직(`services/todoService.js`)을 두 가지 진입점으로 쓸 수 있습니다.
 
 - **MCP 서버** (`mcp-server.js`) — Claude Desktop, Claude Code 같은 MCP 클라이언트가 stdio로 연결해서 사용
-- **CLI** (`cli.js`) — 터미널에서 `todo add/list/done/summary` 명령으로 직접 사용
+- **CLI** (`cli.js`) — 터미널에서 `todo add/list/done/undone/summary` 명령으로 직접 사용
 
 ## MCP 서버 실행 방법
 
@@ -45,6 +45,7 @@ MCP 서버는 표준입출력(stdio)으로 통신하므로, 브라우저가 아�
 node cli.js add <제목> [--due YYYY-MM-DD] [--tags 태그1,태그2]
 node cli.js list [--tag 태그] [--today] [--q 검색어]
 node cli.js done <id>
+node cli.js undone <id>
 node cli.js summary
 ```
 
@@ -55,13 +56,14 @@ npm link
 todo add "우유 사기" --due 2026-09-10 --tags 장보기
 todo list
 todo done 3
+todo undone 3
 todo summary
 ```
 
 ## 구조
 
 - `mcp-server.js` — MCP 서버 진입점 (`@modelcontextprotocol/sdk`, stdio 트랜스포트, 도구 5개 등록)
-- `cli.js` — 터미널용 CLI 진입점 (`add`/`list`/`done`/`summary`)
+- `cli.js` — 터미널용 CLI 진입점 (`add`/`list`/`done`/`undone`/`summary`)
 - `services/todoService.js` — 할 일/태그 CRUD 로직 (SQL 쿼리, MCP·CLI 어느 쪽과도 무관하게 재사용 가능한 순수 함수)
 - `db.js` — SQLite 연결 및 테이블 생성
 - `todo.db` — 실제 데이터 (git에는 커밋되지 않음)

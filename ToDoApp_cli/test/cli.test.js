@@ -190,6 +190,68 @@ describe('todo done (하위 프로세스)', () => {
   });
 });
 
+describe('todo undone (하위 프로세스)', () => {
+  function addOne() {
+    run('add', '우유');
+    return db.prepare('SELECT id FROM todos').get().id;
+  }
+
+  it('완료를 해제한다', () => {
+    const id = addOne();
+    run('done', String(id));
+
+    const res = run('undone', String(id));
+    assert.equal(res.status, 0, res.stderr);
+    assert.match(res.stdout, /완료 해제됨: \[ \]/);
+    assert.equal(db.prepare('SELECT completed FROM todos WHERE id=?').get(id).completed, 0);
+  });
+
+  it('done 과 왕복해도 상태가 맞는다', () => {
+    const id = addOne();
+    const completed = () => db.prepare('SELECT completed FROM todos WHERE id=?').get(id).completed;
+
+    assert.equal(completed(), 0);
+    run('done', String(id));
+    assert.equal(completed(), 1);
+    run('undone', String(id));
+    assert.equal(completed(), 0);
+  });
+
+  it('이미 미완료인 것을 해제해도 그대로 둔다', () => {
+    const id = addOne();
+    const res = run('undone', String(id));
+    assert.equal(res.status, 0, res.stderr);
+    assert.equal(db.prepare('SELECT completed FROM todos WHERE id=?').get(id).completed, 0);
+  });
+
+  it('숫자가 아니면 undone 사용법을 낸다', () => {
+    const res = run('undone', 'abc');
+    assert.equal(res.status, 1);
+    assert.match(res.stderr, /사용법: todo undone <id>/);
+  });
+
+  it('id 를 빠뜨려도 사용법을 낸다', () => {
+    assert.equal(run('undone').status, 1);
+  });
+
+  it('없는 id 면 1로 끝난다', () => {
+    const res = run('undone', '999999');
+    assert.equal(res.status, 1);
+    assert.match(res.stderr, /찾을 수 없습니다/);
+  });
+
+  it('제목이나 마감일은 건드리지 않는다', () => {
+    run('add', '우유', '--due', '2026-09-18');
+    const id = db.prepare('SELECT id FROM todos').get().id;
+    run('done', String(id));
+    run('undone', String(id));
+
+    const row = db.prepare('SELECT title, due_date FROM todos WHERE id=?').get(id);
+    assert.equal(row.title, '우유');
+    assert.equal(row.due_date, '2026-09-18');
+  });
+});
+
 describe('todo summary (하위 프로세스)', () => {
   it('완료 건수를 낸다', () => {
     run('add', '우유');
@@ -215,5 +277,12 @@ describe('명령 없음 / 모르는 명령', () => {
     const res = run('nope');
     assert.equal(res.status, 1);
     assert.match(res.stdout, /사용법:/);
+  });
+
+  it('사용법에 모든 명령이 실려 있다', () => {
+    const { stdout } = run();
+    for (const cmd of ['add', 'list', 'done', 'undone', 'summary']) {
+      assert.match(stdout, new RegExp('todo ' + cmd), cmd + ' 가 사용법에 없습니다');
+    }
   });
 });
